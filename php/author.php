@@ -2,6 +2,8 @@
 namespace MartyBonacci\ObjectOrientedPhp;
 require_once(dirname(__DIR__, 1) . "/php/Classes/Author.php");
 
+$secrets = new \Secrets("/etc/apache2/capstone-mysql/ddctwitter.ini");
+$pdo = $secrets->getPdoObject();
 
 $authorId = "08180705-1cdd-421d-b8aa-fe0ec7f76fe6";
 $authorActivationToken = bin2hex(random_bytes(16));

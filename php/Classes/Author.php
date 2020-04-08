@@ -1,18 +1,18 @@
 <?php
+
 namespace MartyBonacci\ObjectOrientedPhp;
 
 require_once("autoload.php");
 require_once(dirname(__DIR__) . "/vendor/autoload.php");
 
-use http\Exception\BadQueryStringException;
-use http\Exception\InvalidArgumentException;
 use Ramsey\Uuid\Uuid;
 
 /**
  * This is the Author class
  * @author Marty Bonacci <mbonacci@cnm.edu>
  */
-class Author implements \JsonSerializable{
+class Author implements \JsonSerializable
+{
 
     use ValidateUuid;
 
@@ -67,8 +67,9 @@ class Author implements \JsonSerializable{
      * @throws \Exception if some other exception occurs
      * @Documentation https://php.net/manual/en/language.oop5.decon.php
      */
-    public function __construct($newAuthorId,string $newAuthorActivationToken,?string $newAuthorAvatarUrl,string $newAuthorEmail,string $newAuthorHash,string $newAuthorUsername){
-        try{
+    public function __construct($newAuthorId, string $newAuthorActivationToken, ?string $newAuthorAvatarUrl, string $newAuthorEmail, string $newAuthorHash, string $newAuthorUsername)
+    {
+        try {
             $this->setAuthorId($newAuthorId);
             $this->setAuthorActivationToken($newAuthorActivationToken);
             $this->setAuthorAvatarUrl($newAuthorAvatarUrl);
@@ -76,7 +77,7 @@ class Author implements \JsonSerializable{
             $this->setAuthorHash($newAuthorHash);
             $this->setAuthorUsername($newAuthorUsername);
 
-        }catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception){
+        } catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
             $exceptionType = get_class($exception);
             throw(new $exceptionType($exception->getMessage(), 0, $exception));
         }
@@ -87,7 +88,8 @@ class Author implements \JsonSerializable{
      *
      * @return Uuid value of author id
      */
-    public function getAuthorId() :Uuid {
+    public function getAuthorId(): Uuid
+    {
         return ($this->authorId);
     }
 
@@ -99,10 +101,11 @@ class Author implements \JsonSerializable{
      * @throws \RangeException if #newAuthorId is out of range
      * @throws \TypeError if $newAuthorId is not a uuid or string
      */
-    public function setAuthorId($newAuthorId): void{
-        try{
+    public function setAuthorId($newAuthorId): void
+    {
+        try {
             $uuid = self::validateUuid($newAuthorId);
-        }catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception){
+        } catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
             $exceptionType = get_class($exception);
             throw(new $exceptionType($exception->getMessage(), 0, $exception));
         }
@@ -123,26 +126,32 @@ class Author implements \JsonSerializable{
     /**
      *mutator method for account activation token
      *
-     *@param string $newAuthorActivationToken
-     *@throws \InvalidArgumentException if the token is not a string or is insecure
-     *@throws \RangeException if the token is not exactly 32 characters
-     *@throws \TypeError if the activation token is not a string
+     * @param string $newAuthorActivationToken
+     * @throws \InvalidArgumentException if the token is not a string or is insecure
+     * @throws \RangeException if the token is not exactly 32 characters
+     * @throws \TypeError if the activation token is not a string
      */
-    public function setAuthorActivationToken(?string $newAuthorActivationToken): void{
+    public function setAuthorActivationToken(?string $newAuthorActivationToken): void
+    {
 
-        if($newAuthorActivationToken === null) {
+        if ($newAuthorActivationToken === null) {
             $this->authorActivationToken = null;
             return;
         }
 
-        $newAuthorActivationToken = strtolower(trim($newAuthorActivationToken));
-        if(ctype_xdigit($newAuthorActivationToken) === false) {
-            throw(new\RangeException("author activation is not valid"));
-        }
+        try {
+            $newAuthorActivationToken = strtolower(trim($newAuthorActivationToken));
+            if (ctype_xdigit($newAuthorActivationToken) === false) {
+                throw(new\RangeException("author activation is not valid"));
+            }
 
-        //make sure user activation token is only 32 characters
-        if(strlen($newAuthorActivationToken) !== 32) {
-            throw(new\RangeException("author activation token has to be 32 characters"));
+            //make sure user activation token is only 32 characters
+            if (strlen($newAuthorActivationToken) !== 32) {
+                throw(new\RangeException("author activation token has to be 32 characters"));
+            }
+        } catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
+            $exceptionType = get_class($exception);
+            throw(new $exceptionType($exception->getMessage(), 0, $exception));
         }
 
         $this->authorActivationToken = $newAuthorActivationToken;
@@ -166,20 +175,148 @@ class Author implements \JsonSerializable{
      * @throws \RangeException if the avatar url is not more than 255 characters
      * @throws \TypeError if the avatar url is not a string
      */
-    public function setAuthorAvatarUrl(?string $newAuthorAvatarUrl): void{
+    public function setAuthorAvatarUrl(?string $newAuthorAvatarUrl): void
+    {
 
         $newAuthorAvatarUrl = trim($newAuthorAvatarUrl);
         $newAuthorAvatarUrl = filter_var($newAuthorAvatarUrl, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
 
-        // verify the avatar URL will fit in the database
-        if(strlen($newAuthorAvatarUrl) > 255) {
-            throw(new \RangeException("avatar url too long, must be less than 256 characters"));
+        try {
+            // verify the avatar URL will fit in the database
+            if (strlen($newAuthorAvatarUrl) > 255) {
+                throw(new \RangeException("avatar url too long, must be less than 256 characters"));
+            }
+        } catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
+            $exceptionType = get_class($exception);
+            throw(new $exceptionType($exception->getMessage(), 0, $exception));
         }
         $this->authorAvatarUrl = $newAuthorAvatarUrl;
     }
 
+    /**
+     * accessor method for author email
+     *
+     * @return string author email
+     */
+    public function getAuthorEmail(): string
+    {
+        return $this->authorEmail;
+    }
 
+    /**
+     * mutator method for author email
+     *
+     * @param string $newAuthorEmail
+     * @throws \InvalidArgumentException if the email is not an email or is insecure
+     * @throws \RangeException if the email is more than 128 characters
+     * @throws \TypeError if the email is not a string
+     */
+    public function setAuthorEmail(string $newAuthorEmail): void
+    {
+        try {
+            // verify the email is secure
+            $newAuthorEmail = trim($newAuthorEmail);
+            $newAuthorEmail = filter_var($newAuthorEmail, FILTER_VALIDATE_EMAIL);
+            if (empty($newAuthorEmail) === true) {
+                throw(new \InvalidArgumentException("author email is empty or insecure"));
+            }
 
+            // verify the email will fit in the database
+            if (strlen($newAuthorEmail) > 128) {
+                throw(new \RangeException("author email is too large"));
+            }
+        }catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception){
+            $exceptionType = get_class($exception);
+            throw(new $exceptionType($exception->getMessage(), 0, $exception));
+        }
+
+        $this->authorEmail = $newAuthorEmail;
+    }
+
+    /**
+     * accessor for author hash
+     *
+     * @return string this author hash
+     */
+    public function getAuthorHash(): string
+    {
+        return $this->authorHash;
+    }
+
+    /**
+     * mutator for author hash
+     *
+     * @param string $newAuthorHash
+     * @throws \InvalidArgumentException if the hash is not an argon hash or is insecure
+     * @throws \RangeException if the author hash is larger than 97 characters
+     * @throws \TypeError if the hash is not a string
+     */
+    public function setAuthorHash(string $newAuthorHash): void
+    {
+        try {
+            //enforce that the hash is properly formatted
+            $newAuthorHash = trim($newAuthorHash);
+            if (empty($newAuthorHash) === true) {
+                throw(new \InvalidArgumentException("author password hash empty"));
+            }
+
+            //enforce the hash is really an Argon hash
+            $authorHashInfo = password_get_info($newAuthorHash);
+            if ($authorHashInfo["algoName"] !== "argon2id") {
+                throw(new \InvalidArgumentException("author hash is not a valid hash"));
+            }
+
+            // verify the hash will fit in the database
+            if (strlen($newAuthorHash) > 97) {
+                throw(new \RangeException("author hash is too large"));
+            }
+        }catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception){
+            $exceptionType = get_class($exception);
+            throw(new $exceptionType($exception->getMessage(), 0, $exception));
+        }
+
+        $this->authorHash = $newAuthorHash;
+    }
+
+    /**
+     * accessor for username
+     *
+     * @return string author username
+     */
+    public function getAuthorUsername(): string
+    {
+        return $this->authorUsername;
+    }
+
+    /**
+     * mutator for username
+     *
+     * @param string $newAuthorUsername
+     * @throws \InvalidArgumentException if the username is empty or insecure
+     * @throws \RangeException if the username is larger than 32 characters
+     * @throws \TypeError if the username is not a string
+     */
+    public function setAuthorUsername(string $newAuthorUsername): void
+    {
+        try {
+            // verify the username is secure
+            $newAuthorUsername = trim($newAuthorUsername);
+            $newAuthorUsername = filter_var($newAuthorUsername, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+            if (empty($newAuthorUsername) === true) {
+                throw(new \InvalidArgumentException("username is empty or insecure"));
+            }
+
+            // verify the username will fit in the database
+            if (strlen($newAuthorUsername) > 32) {
+                throw(new \RangeException("username must be 32 characters or less"));
+            }
+        }catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception){
+            $exceptionType = get_class($exception);
+            throw(new $exceptionType($exception->getMessage(), 0, $exception));
+        }
+
+        $this->authorUsername = $newAuthorUsername;
+    }
 
 
     /**
@@ -187,6 +324,10 @@ class Author implements \JsonSerializable{
      */
     public function jsonSerialize()
     {
-        // TODO: Implement jsonSerialize() method.
+        $fields = get_object_vars($this);
+        $fields["authorId"] = $this->authorId->toString();
+        unset($fields["authorActivationToken"]);
+        unset($fields["authorHash"]);
+        return ($fields);
     }
 }
